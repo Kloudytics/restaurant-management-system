@@ -34,4 +34,29 @@ func GetAllMenuItems(db *pgxpool.Pool) ([]MenuItem, error) {
 	return items, nil
 }
 
-// Add more functions for CRUD operations as needed
+func CreateMenuItem(db *pgxpool.Pool, item *MenuItem) error {
+	_, err := db.Exec(context.Background(),
+		"INSERT INTO menu_items (name, description, price, category) VALUES ($1, $2, $3, $4)",
+		item.Name, item.Description, item.Price, item.Category)
+	return err
+}
+
+func GetMenuItem(db *pgxpool.Pool, id int) (MenuItem, error) {
+	var item MenuItem
+	err := db.QueryRow(context.Background(),
+		"SELECT id, name, description, price, category FROM menu_items WHERE id = $1", id).
+		Scan(&item.ID, &item.Name, &item.Description, &item.Price, &item.Category)
+	return item, err
+}
+
+func UpdateMenuItem(db *pgxpool.Pool, item *MenuItem) error {
+	_, err := db.Exec(context.Background(),
+		"UPDATE menu_items SET name = $1, description = $2, price = $3, category = $4 WHERE id = $5",
+		item.Name, item.Description, item.Price, item.Category, item.ID)
+	return err
+}
+
+func DeleteMenuItem(db *pgxpool.Pool, id int) error {
+	_, err := db.Exec(context.Background(), "DELETE FROM menu_items WHERE id = $1", id)
+	return err
+}
